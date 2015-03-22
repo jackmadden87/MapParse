@@ -63,28 +63,37 @@ class TurbineMap(object):
             key_index = self.rows[2].index(channel)
             header[channel].append(self.rows[3][key_index])
 
-        for line in range(1, self.max_lines + 1):  # Add lists of data points, according to Line_no
+        for line in range(1, self.max_lines + 1):  # Add lists of data points, split according to Line_no
             for channel in header:
                 key_index = self.rows[2].index(channel)
                 header[channel].append([row[key_index] for row in self.rows[5:] if int(float(row[self.line_index])) == line])
+
         return header
+
+    def sort_order(self, points):
+        pass
+
 
 # TESTING #############################################################################################################
 
 if __name__ == "__main__":
 
-    import os
+    import matplotlib.pyplot as plt
 
-    datafiles = (os.listdir("./testdata"))
-    for i in datafiles:
+    my_map = TurbineMap("testdata/15-0178-02-A")
 
-        i = TurbineMap("./testdata/" + i)
-        print i.test_cell + ":@\t" + i.test_type
-        for x in i.channels:
-            print x
-            for y in i.channels[x]:
-                print y
-            print
-        print
-        print
-        print
+    spd_lines = my_map.channels["Trb_spd"][1:]
+
+    eff_lines = my_map.channels["Tur_eff"][1:]
+
+    for i in spd_lines:
+        order = [i.index(str(point)) for point in sorted(map(int, i))]
+
+        x = [i[o] for o in order]
+        y = [eff_lines[spd_lines.index(i)][o] for o in order]
+
+        plt.title(my_map.test_cell + "\n" + my_map.test_type)
+        plt.plot(x, y, label=spd_lines.index(i))
+        plt.legend()
+
+    plt.show()
